@@ -1,7 +1,7 @@
 import { ProcessResult, FormClass, LcrRecord } from './types'
 import { supabase } from './supabase'
 
-const HF_API_URL = process.env.NEXT_PUBLIC_HF_API_URL || 'http://127.0.0.1:7860/process'
+const HF_API_URL = 'https://huggingface.co/spaces/hanz245/ocr/process'
 
 // ── HF Space OCR ──────────────────────────────────────────────
 export async function processDocument(
