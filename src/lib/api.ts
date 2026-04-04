@@ -99,23 +99,28 @@ export function assembleFields(
   // Form 90 — Marriage License (type_id 4)
   return {
     ...shared,
-    license_no: f.license_no || '',
-    groom_name: join(f.groom_first, f.groom_middle, f.groom_last),
+    license_no: f.marriage_license_no || f.license_no || '',
+    groom_name: join(f.groom_name_first, f.groom_name_middle, f.groom_name_last),
     groom_age: f.groom_age || '',
+    groom_residence: f.groom_residence || '',
     groom_nat: f.groom_citizenship || '',
-    groom_mother: join(f.groom_mother_first, f.groom_mother_last),
+    groom_mother: f.groom_mother_name || join(f.groom_mother_first, f.groom_mother_last),
     groom_mother_nat: f.groom_mother_citizenship || '',
-    groom_father: join(f.groom_father_first, f.groom_father_last),
+    groom_father: f.groom_father_name || join(f.groom_father_first, f.groom_father_last),
     groom_father_nat: f.groom_father_citizenship || '',
-    bride_name: join(f.bride_first, f.bride_middle, f.bride_last),
+    bride_name: join(f.bride_name_first, f.bride_name_middle, f.bride_name_last),
     bride_age: f.bride_age || '',
+    bride_residence: f.bride_residence || '',
     bride_nat: f.bride_citizenship || '',
-    bride_mother: join(f.bride_mother_first, f.bride_mother_last),
+    bride_mother: f.bride_mother_name || join(f.bride_mother_first, f.bride_mother_last),
     bride_mother_nat: f.bride_mother_citizenship || '',
-    bride_father: join(f.bride_father_first, f.bride_father_last),
+    bride_father: f.bride_father_name || join(f.bride_father_first, f.bride_father_last),
     bride_father_nat: f.bride_father_citizenship || '',
-    dom: date3(f.marriage_month, f.marriage_day, f.marriage_year),
-    pom: place2(f.marriage_venue || f.marriage_city, f.marriage_province),
+    // date_issued is split into parts for the form template
+    ml_day: f.ml_day || '',
+    ml_month: f.ml_month || '',
+    ml_year: f.ml_year || '',
+    province: f.province || '',
   }
 }
 
