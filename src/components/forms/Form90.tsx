@@ -122,7 +122,7 @@ export default function Form90({ fields, editing, onChange }: Props) {
           "license_no",
           200,
           "Date of Issuance:",
-          "date_issuance",
+          "date",
           120,
         ],
         ["Date of Receipt:", "date_reg", 160, null, null, 0],
