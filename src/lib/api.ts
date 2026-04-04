@@ -100,7 +100,7 @@ export function assembleFields(
   return {
     ...shared,
     license_no: f.marriage_license_no || f.license_no || '',
-    groom_name: join(f.groom_name_first, f.groom_name_middle, f.groom_name_last),
+    groom_name: f.groom_name || join(f.groom_name_first, f.groom_name_middle, f.groom_name_last),
     groom_age: f.groom_age || '',
     groom_residence: f.groom_residence || '',
     groom_nat: f.groom_citizenship || '',
@@ -108,7 +108,7 @@ export function assembleFields(
     groom_mother_nat: f.groom_mother_citizenship || '',
     groom_father: f.groom_father_name || join(f.groom_father_first, f.groom_father_last),
     groom_father_nat: f.groom_father_citizenship || '',
-    bride_name: join(f.bride_name_first, f.bride_name_middle, f.bride_name_last),
+    bride_name: f.bride_name || join(f.bride_name_first, f.bride_name_middle, f.bride_name_last),
     bride_age: f.bride_age || '',
     bride_residence: f.bride_residence || '',
     bride_nat: f.bride_citizenship || '',
