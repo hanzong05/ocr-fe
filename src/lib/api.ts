@@ -1,7 +1,7 @@
 import { ProcessResult, FormClass, LcrRecord } from './types'
 import { supabase } from './supabase'
 
-const HF_API_URL = 'https://hanz245-ocr.hf.space/process'
+const HF_API_URL = 'http://127.0.0.1:7860/process'
 
 // ── HF Space OCR ──────────────────────────────────────────────
 export async function processDocument(
@@ -97,11 +97,30 @@ export function assembleFields(
   }
 
   // Form 90 — Marriage License (type_id 4)
+  let ml_day = ''
+  let ml_month = ''
+  let ml_year = ''
+  const issuedRaw = f.date_issued || f.date_issuance || f.date || ''
+  const m1 = issuedRaw.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/)
+  if (m1) {
+    ml_month = m1[1]
+    ml_day = m1[2]
+    ml_year = m1[3]
+  } else {
+    const m2 = issuedRaw.match(/([A-Za-z]+)\s+(\d{1,2}),?\s+(\d{4})/)
+    if (m2) {
+      ml_month = m2[1]
+      ml_day = m2[2]
+      ml_year = m2[3]
+    }
+  }
+
   return {
     ...shared,
-    license_no: f.license_no || '',
+    license_no: f.marriage_license_no || f.license_no || '',
     groom_name: join(f.groom_first, f.groom_middle, f.groom_last),
     groom_age: f.groom_age || '',
+    groom_residence: f.groom_residence || '',
     groom_nat: f.groom_citizenship || '',
     groom_mother: join(f.groom_mother_first, f.groom_mother_last),
     groom_mother_nat: f.groom_mother_citizenship || '',
@@ -109,11 +128,15 @@ export function assembleFields(
     groom_father_nat: f.groom_father_citizenship || '',
     bride_name: join(f.bride_first, f.bride_middle, f.bride_last),
     bride_age: f.bride_age || '',
+    bride_residence: f.bride_residence || '',
     bride_nat: f.bride_citizenship || '',
     bride_mother: join(f.bride_mother_first, f.bride_mother_last),
     bride_mother_nat: f.bride_mother_citizenship || '',
     bride_father: join(f.bride_father_first, f.bride_father_last),
     bride_father_nat: f.bride_father_citizenship || '',
+    ml_day,
+    ml_month,
+    ml_year,
     dom: date3(f.marriage_month, f.marriage_day, f.marriage_year),
     pom: place2(f.marriage_venue || f.marriage_city, f.marriage_province),
   }
