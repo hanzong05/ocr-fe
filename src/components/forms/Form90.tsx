@@ -115,7 +115,7 @@ export default function Form90({ fields, editing, onChange }: Props) {
 
       {/* META ROWS */}
       {[
-        ["Province:", "province", 200, "Registry No.:", "registry_no", 100],
+        ["Province:", "province", 200, "Registry No.:", "registry", 100],
         ["City/Municipality:", "city_municipality", 300, null, null, 0],
         [
           "Marriage License No.:",
