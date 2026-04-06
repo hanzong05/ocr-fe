@@ -1,12 +1,11 @@
 "use client";
-
 interface Props {
   fields: Record<string, string>;
   editing: boolean;
   onChange: (key: string, value: string) => void;
 }
 
-const inp = (extra?: React.CSSProperties): React.CSSProperties => ({
+const inputStyle = (extra?: React.CSSProperties): React.CSSProperties => ({
   border: "none",
   borderBottom: "1px solid #111",
   outline: "none",
@@ -17,7 +16,7 @@ const inp = (extra?: React.CSSProperties): React.CSSProperties => ({
   ...extra,
 });
 
-const cell: React.CSSProperties = {
+const cellStyle: React.CSSProperties = {
   borderBottom: "1px solid #111",
   minWidth: 200,
   padding: "0 4px",
@@ -26,37 +25,44 @@ const cell: React.CSSProperties = {
   verticalAlign: "bottom",
 };
 
-export default function Form2A({ fields, editing, onChange }: Props) {
-  function Val({ fkey, bold }: { fkey: string; bold?: boolean }) {
-    const v = fields[fkey] || "";
-    if (editing)
-      return (
-        <input
-          value={v}
-          onChange={(e) => onChange(fkey, e.target.value)}
-          style={inp({ fontWeight: bold ? "bold" : "normal" })}
-        />
-      );
+interface ValProps {
+  fkey: string;
+  fields: Record<string, string>;
+  editing: boolean;
+  onChange: (k: string, v: string) => void;
+  bold?: boolean;
+  style?: React.CSSProperties; // make sure this line exists
+}
+
+function Val({ fkey, fields, editing, onChange, bold }: ValProps) {
+  const v = fields[fkey] ?? "";
+  const fw = bold ? "bold" : "normal";
+  if (editing)
     return (
-      <span style={{ ...cell, fontWeight: bold ? "bold" : "normal" }}>
-        {v || "\u00a0"}
-      </span>
+      <input
+        type="text"
+        value={v}
+        onChange={(e) => onChange(fkey, e.target.value)}
+        style={inputStyle({ fontWeight: fw })}
+      />
     );
-  }
+  return <span style={{ ...cellStyle, fontWeight: fw }}>{v || "\u00a0"}</span>;
+}
 
-  const rows: [string, string, boolean?][] = [
-    ["Registry Number", "registry"],
-    ["Date of Registration", "date_reg"],
-    ["NAME OF DECEASED", "deceased_name", true],
-    ["Sex", "sex"],
-    ["Age", "age"],
-    ["Civil Status", "civil_status"],
-    ["Nationality", "nationality"],
-    ["Date of Death", "dod"],
-    ["Place of Death", "pod"],
-    ["Cause of Death", "cause"],
-  ];
+const rows: [string, string, boolean?][] = [
+  ["Registry Number", "registry"],
+  ["Date of Registration", "date_reg"],
+  ["NAME OF DECEASED", "deceased_name", true],
+  ["Sex", "sex"],
+  ["Age", "age"],
+  ["Civil Status", "civil_status"],
+  ["Nationality", "nationality"],
+  ["Date of Death", "dod"],
+  ["Place of Death", "pod"],
+  ["Cause of Death", "cause"],
+];
 
+export default function Form2A({ fields, editing, onChange }: Props) {
   return (
     <div
       style={{
@@ -71,47 +77,27 @@ export default function Form2A({ fields, editing, onChange }: Props) {
         <br />
         (Death available)
       </div>
-
       <div style={{ textAlign: "center", marginBottom: 6 }}>
         <div>Republic of the Philippines</div>
         <div style={{ fontSize: 22, fontWeight: "bold", letterSpacing: 0.3 }}>
           Office of the City Registrar
         </div>
-        <div>
-          {editing ? (
-            <input
-              value={fields.city || ""}
-              onChange={(e) => onChange("city", e.target.value)}
-              style={inp({ textAlign: "center", width: "auto" })}
-            />
-          ) : (
-            <span>{fields.city || "\u00a0"}</span>
-          )}
-        </div>
+        <Val
+          fkey="city"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+        />
       </div>
-
       <div style={{ textAlign: "right", margin: "10px 0 16px" }}>
         Date&nbsp;
-        {editing ? (
-          <input
-            value={fields.date || ""}
-            onChange={(e) => onChange("date", e.target.value)}
-            style={inp({ minWidth: 140, width: "auto" })}
-          />
-        ) : (
-          <span
-            style={{
-              display: "inline-block",
-              borderBottom: "1px solid #111",
-              minWidth: 140,
-              marginLeft: 4,
-            }}
-          >
-            {fields.date || "\u00a0"}
-          </span>
-        )}
+        <Val
+          fkey="date"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+        />
       </div>
-
       <div style={{ fontWeight: "bold", marginBottom: 8 }}>
         TO WHOM IT MAY CONCERN:
       </div>
@@ -121,29 +107,22 @@ export default function Form2A({ fields, editing, onChange }: Props) {
       </div>
       <div style={{ marginBottom: 18 }}>
         Page:
-        <span
-          style={{
-            display: "inline-block",
-            borderBottom: "1px solid #111",
-            minWidth: 70,
-            margin: "0 4px",
-          }}
-        >
-          &nbsp;
-        </span>
+        <Val
+          fkey="page"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+          style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
+        />
         of Book no:
-        <span
-          style={{
-            display: "inline-block",
-            borderBottom: "1px solid #111",
-            minWidth: 70,
-            margin: "0 4px",
-          }}
-        >
-          &nbsp;
-        </span>
+        <Val
+          fkey="book_no"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+          style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
+        />
       </div>
-
       <table
         style={{ width: "100%", borderCollapse: "collapse", marginBottom: 20 }}
       >
@@ -172,37 +151,28 @@ export default function Form2A({ fields, editing, onChange }: Props) {
                 :
               </td>
               <td style={{ padding: "4px 0", verticalAlign: "bottom" }}>
-                <Val fkey={key} bold={bold} />
+                <Val
+                  fkey={key}
+                  fields={fields}
+                  editing={editing}
+                  onChange={onChange}
+                  bold={bold}
+                />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
       <div style={{ marginBottom: 20, lineHeight: 2 }}>
         This certification is issued to&nbsp;
-        {editing ? (
-          <input
-            value={fields.issued_to || ""}
-            onChange={(e) => onChange("issued_to", e.target.value)}
-            style={inp({ minWidth: 280, width: "auto" })}
-          />
-        ) : (
-          <span
-            style={{
-              display: "inline-block",
-              borderBottom: "1px solid #111",
-              minWidth: 280,
-              margin: "0 4px",
-              verticalAlign: "bottom",
-            }}
-          >
-            {fields.issued_to || "\u00a0"}
-          </span>
-        )}
+        <Val
+          fkey="issued_to"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+        />
         &nbsp;upon his/her request.
       </div>
-
       <div style={{ marginBottom: 8 }}>
         Verified by:
         <div
@@ -213,15 +183,12 @@ export default function Form2A({ fields, editing, onChange }: Props) {
             height: 18,
           }}
         >
-          {editing ? (
-            <input
-              value={fields.verified_by || ""}
-              onChange={(e) => onChange("verified_by", e.target.value)}
-              style={inp()}
-            />
-          ) : (
-            fields.verified_by
-          )}
+          <Val
+            fkey="verified_by"
+            fields={fields}
+            editing={editing}
+            onChange={onChange}
+          />
         </div>
         <div
           style={{
@@ -231,18 +198,14 @@ export default function Form2A({ fields, editing, onChange }: Props) {
             height: 18,
           }}
         >
-          {editing ? (
-            <input
-              value={fields.verified_pos || ""}
-              onChange={(e) => onChange("verified_pos", e.target.value)}
-              style={inp()}
-            />
-          ) : (
-            fields.verified_pos
-          )}
+          <Val
+            fkey="verified_pos"
+            fields={fields}
+            editing={editing}
+            onChange={onChange}
+          />
         </div>
       </div>
-
       <div style={{ marginTop: 28 }}>
         {(
           [
@@ -262,28 +225,15 @@ export default function Form2A({ fields, editing, onChange }: Props) {
           >
             <span style={{ width: 110 }}>{label}</span>
             <span>:</span>
-            {editing ? (
-              <input
-                value={fields[key] || ""}
-                onChange={(e) => onChange(key, e.target.value)}
-                style={inp({ minWidth: 110, width: "auto" })}
-              />
-            ) : (
-              <span
-                style={{
-                  borderBottom: "1px solid #111",
-                  minWidth: 110,
-                  height: 18,
-                  display: "inline-block",
-                }}
-              >
-                {fields[key]}
-              </span>
-            )}
+            <Val
+              fkey={key}
+              fields={fields}
+              editing={editing}
+              onChange={onChange}
+            />
           </div>
         ))}
       </div>
-
       <div style={{ fontSize: 12, marginTop: 30, fontStyle: "italic" }}>
         Note: A Mark, erasure or alteration of any entry invalidates this
         certification.

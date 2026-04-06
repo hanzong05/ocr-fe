@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import Header from "@/components/Header";
@@ -16,8 +16,6 @@ export default function CertTemplatePage() {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [exporting, setExporting] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isLoggedIn) router.push("/login");
@@ -45,218 +43,126 @@ export default function CertTemplatePage() {
     } catch (e: unknown) {
       notify(
         "Save failed: " + (e instanceof Error ? e.message : "Unknown error"),
-        "error"
+        "error",
       );
     } finally {
       setSaving(false);
     }
   }
 
-  async function exportPDF() {
-    if (!printRef.current) return;
-    setExporting(true);
-
-    try {
-      // Dynamically import to avoid SSR issues
-      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
-        import("jspdf"),
-        import("html2canvas"),
-      ]);
-
-      const element = printRef.current;
-
-      // Capture at high resolution (scale: 3 = ~300 DPI equivalent on screen)
-      const canvas = await html2canvas(element, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        // Ensure full element is captured even if off-screen
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-      });
-
-      // US Letter dimensions in mm
-      const pageWidth = 215.9;
-      const pageHeight = 279.4;
-
-      // Margins in mm
-      const marginTop = 12.7;
-      const marginBottom = 12.7;
-      const marginLeft = 12.7;
-      const marginRight = 12.7;
-
-      const contentWidth = pageWidth - marginLeft - marginRight;
-      const contentHeight = pageHeight - marginTop - marginBottom;
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "letter",
-        compress: true,
-      });
-
-      // Convert canvas px to mm (at 96 DPI base, scale=3 means 288 DPI)
-      const pxToMm = (px: number) => (px / (96 * 3)) * 25.4;
-
-      const imgWidthMm = pxToMm(canvas.width);
-      const imgHeightMm = pxToMm(canvas.height);
-
-      // Scale image to fit content width, maintaining aspect ratio
-      const scaleFactor = contentWidth / imgWidthMm;
-      const scaledWidth = imgWidthMm * scaleFactor;
-      const scaledHeight = imgHeightMm * scaleFactor;
-
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-      // Paginate if content is taller than one page
-      if (scaledHeight <= contentHeight) {
-        // Single page — center vertically if short
-        pdf.addImage(
-          imgData,
-          "JPEG",
-          marginLeft,
-          marginTop,
-          scaledWidth,
-          scaledHeight
-        );
-      } else {
-        // Multi-page: slice canvas per page
-        const pageHeightPx = canvas.width * (contentHeight / contentWidth);
-        let remainingHeight = canvas.height;
-        let offsetY = 0;
-        let isFirstPage = true;
-
-        while (remainingHeight > 0) {
-          const sliceHeight = Math.min(pageHeightPx, remainingHeight);
-
-          // Create a slice canvas
-          const pageCanvas = document.createElement("canvas");
-          pageCanvas.width = canvas.width;
-          pageCanvas.height = sliceHeight;
-          const ctx = pageCanvas.getContext("2d")!;
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-          ctx.drawImage(canvas, 0, -offsetY);
-
-          const pageImgData = pageCanvas.toDataURL("image/jpeg", 1.0);
-          const sliceHeightMm = pxToMm(sliceHeight) * scaleFactor;
-
-          if (!isFirstPage) pdf.addPage();
-          pdf.addImage(
-            pageImgData,
-            "JPEG",
-            marginLeft,
-            marginTop,
-            scaledWidth,
-            sliceHeightMm
-          );
-
-          offsetY += sliceHeight;
-          remainingHeight -= sliceHeight;
-          isFirstPage = false;
-        }
-      }
-
-      const filename = `Form${formClass}_${new Date()
-        .toISOString()
-        .slice(0, 10)}.pdf`;
-      pdf.save(filename);
-      notify("PDF exported successfully!", "success");
-    } catch (e: unknown) {
-      notify(
-        "PDF export failed: " +
-          (e instanceof Error ? e.message : "Unknown error"),
-        "error"
-      );
-    } finally {
-      setExporting(false);
-    }
-  }
-
   const formProps = { fields, editing, onChange: handleChange };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <Notification />
-      <Header />
+    <>
+      <style>{`
+        @media print {
+          .no-print {
+            display: none !important;
+          }
+          body, html {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          main {
+            padding: 0 !important;
+            flex: unset !important;
+          }
+          .print-wrapper {
+            padding: 0 !important;
+          }
+          .print-area {
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            min-height: unset !important;
+            background: white !important;
+          }
+          @page {
+            size: Letter;
+            margin: 0;
+          }
+        }
+      `}</style>
 
-      <main style={{ flex: 1, padding: 24, background: "#f0f2f5" }}>
-        <div style={{ maxWidth: 820, margin: "0 auto" }}>
+      <div
+        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      >
+        <div className="no-print">
+          <Notification />
+          <Header />
+        </div>
 
-          {/* Toolbar */}
+        <main style={{ flex: 1, padding: 24 }}>
           <div
-            style={{
-              display: "flex",
-              gap: 10,
-              marginBottom: 20,
-              flexWrap: "wrap",
-              alignItems: "center",
-            }}
+            className="print-wrapper"
+            style={{ maxWidth: 780, margin: "0 auto" }}
           >
-            <button
-              onClick={() => setEditing((e) => !e)}
-              style={btnStyle(editing ? "#6b7280" : "var(--navy)")}
-            >
-              {editing ? "✕  Cancel" : "✏  Edit"}
-            </button>
-
-            <button
-              onClick={exportPDF}
-              disabled={exporting}
-              style={{
-                ...btnStyle("#1a56db"),
-                opacity: exporting ? 0.7 : 1,
-                minWidth: 160,
-              }}
-            >
-              {exporting ? (
-                <>
-                  <Spinner /> Generating PDF…
-                </>
-              ) : (
-                "⬇  Download PDF"
-              )}
-            </button>
-
-            <button
-              onClick={save}
-              disabled={saving}
-              style={{
-                ...btnStyle("var(--primary-green)"),
-                marginLeft: "auto",
-                opacity: saving ? 0.7 : 1,
-              }}
-            >
-              {saving ? "Saving…" : "💾  Save"}
-            </button>
-          </div>
-
-          {/* Document preview */}
-          <div
-            style={{
-              background: "white",
-              borderRadius: 6,
-              boxShadow: "0 4px 32px rgba(0,0,0,0.14)",
-              overflow: "hidden",
-            }}
-          >
-            {/* "Paper" that gets captured */}
             <div
-              ref={printRef}
+              className="no-print"
               style={{
-                // US Letter at 96 DPI = 816 × 1056 px
-                width: 816,
-                minHeight: 1056,
-                margin: "0 auto",
-                padding: "48px 60px 60px",
-                background: "#ffffff",
-                boxSizing: "border-box",
-                fontFamily: "serif",
-                fontSize: 12,
-                lineHeight: 1.5,
-                color: "#111",
+                display: "flex",
+                gap: 10,
+                marginBottom: 20,
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                onClick={() => setEditing((e) => !e)}
+                style={{
+                  padding: "10px 20px",
+                  background: editing ? "#aaa" : "var(--navy)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                {editing ? "✕ CANCEL" : "✏ EDIT"}
+              </button>
+              <button
+                onClick={() => window.print()}
+                style={{
+                  padding: "10px 20px",
+                  background: "var(--navy)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                🖨 PRINT
+              </button>
+              <button
+                onClick={save}
+                disabled={saving}
+                style={{
+                  padding: "10px 20px",
+                  background: "var(--primary-green)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  marginLeft: "auto",
+                  opacity: saving ? 0.7 : 1,
+                }}
+              >
+                {saving ? "Saving..." : "SAVE"}
+              </button>
+            </div>
+
+            <div
+              className="print-area"
+              style={{
+                background: "white",
+                borderRadius: 4,
+                padding: "40px 50px 50px",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+                minHeight: 900,
               }}
             >
               {formClass === "1A" && <Form1A {...formProps} />}
@@ -264,55 +170,8 @@ export default function CertTemplatePage() {
               {formClass === "3A" && <Form3A {...formProps} />}
             </div>
           </div>
-
-          <p
-            style={{
-              textAlign: "center",
-              color: "#9ca3af",
-              fontSize: 12,
-              marginTop: 12,
-            }}
-          >
-            Preview is actual PDF size (US Letter). Use <strong>Download PDF</strong> for
-            best quality.
-          </p>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-/* ─── helpers ─────────────────────────────────────────────── */
-
-function btnStyle(bg: string): React.CSSProperties {
-  return {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    padding: "10px 20px",
-    background: bg,
-    color: "white",
-    border: "none",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontWeight: 600,
-    fontSize: 14,
-    whiteSpace: "nowrap",
-  };
-}
-
-function Spinner() {
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        width: 14,
-        height: 14,
-        border: "2px solid rgba(255,255,255,0.4)",
-        borderTopColor: "white",
-        borderRadius: "50%",
-        animation: "spin 0.7s linear infinite",
-      }}
-    />
+        </main>
+      </div>
+    </>
   );
 }

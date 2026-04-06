@@ -1,11 +1,30 @@
 "use client";
-
 interface Props {
   fields: Record<string, string>;
   editing: boolean;
   onChange: (key: string, value: string) => void;
 }
+interface VProps {
+  fkey: string;
+  fields: Record<string, string>;
+  editing: boolean;
+  onChange: (k: string, v: string) => void;
+  style?: React.CSSProperties; // add this
+}
 
+function V({ fkey, fields, editing, onChange, style }: VProps) {
+  const v = fields[fkey] || "";
+  if (editing)
+    return (
+      <input
+        type="text"
+        value={v}
+        onChange={(e) => onChange(fkey, e.target.value)}
+        style={inp(style)} // pass style through
+      />
+    );
+  return <span style={{ ...cell, ...style }}>{v || "\u00a0"}</span>; // merge style
+}
 const inp = (extra?: React.CSSProperties): React.CSSProperties => ({
   border: "none",
   borderBottom: "1px solid #111",
@@ -26,37 +45,32 @@ const cell: React.CSSProperties = {
   verticalAlign: "bottom",
 };
 
+/* ─── defined OUTSIDE Form3A ────────────────────────────────────── */
+interface VProps {
+  fkey: string;
+  fields: Record<string, string>;
+  editing: boolean;
+  onChange: (k: string, v: string) => void;
+}
+
+const partyRows: [string, string, string][] = [
+  ["Name", "husband_name", "wife_name"],
+  ["Age", "husband_age", "wife_age"],
+  ["Nationality", "husband_nat", "wife_nat"],
+  ["Name of Mother", "husband_mother", "wife_mother"],
+  ["Nationality of Mother", "husband_mother_nat", "wife_mother_nat"],
+  ["Name of Father", "husband_father", "wife_father"],
+  ["Nationality of Father", "husband_father_nat", "wife_father_nat"],
+];
+
+const singleRows: [string, string][] = [
+  ["Registry Number", "registry"],
+  ["Date of Registration", "date_reg"],
+  ["Date of Marriage", "dom"],
+  ["Place of Marriage", "pom"],
+];
+
 export default function Form3A({ fields, editing, onChange }: Props) {
-  function V({ fkey }: { fkey: string }) {
-    const v = fields[fkey] || "";
-    if (editing)
-      return (
-        <input
-          value={v}
-          onChange={(e) => onChange(fkey, e.target.value)}
-          style={inp()}
-        />
-      );
-    return <span style={cell}>{v || "\u00a0"}</span>;
-  }
-
-  const partyRows: [string, string, string][] = [
-    ["Name", "husband_name", "wife_name"],
-    ["Age", "husband_age", "wife_age"],
-    ["Nationality", "husband_nat", "wife_nat"],
-    ["Name of Mother", "husband_mother", "wife_mother"],
-    ["Nationality of Mother", "husband_mother_nat", "wife_mother_nat"],
-    ["Name of Father", "husband_father", "wife_father"],
-    ["Nationality of Father", "husband_father_nat", "wife_father_nat"],
-  ];
-
-  const singleRows: [string, string][] = [
-    ["Registry Number", "registry"],
-    ["Date of Registration", "date_reg"],
-    ["Date of Marriage", "dom"],
-    ["Place of Marriage", "pom"],
-  ];
-
   return (
     <div
       style={{
@@ -78,38 +92,18 @@ export default function Form3A({ fields, editing, onChange }: Props) {
           Office of the City Registrar
         </div>
         <div>
-          {editing ? (
-            <input
-              value={fields.city || ""}
-              onChange={(e) => onChange("city", e.target.value)}
-              style={inp({ textAlign: "center", width: "auto" })}
-            />
-          ) : (
-            <span>{fields.city || "\u00a0"}</span>
-          )}
+          <V
+            fkey="city"
+            fields={fields}
+            editing={editing}
+            onChange={onChange}
+          />
         </div>
       </div>
 
       <div style={{ textAlign: "right", margin: "10px 0 16px" }}>
         Date&nbsp;
-        {editing ? (
-          <input
-            value={fields.date || ""}
-            onChange={(e) => onChange("date", e.target.value)}
-            style={inp({ minWidth: 140, width: "auto" })}
-          />
-        ) : (
-          <span
-            style={{
-              display: "inline-block",
-              borderBottom: "1px solid #111",
-              minWidth: 140,
-              marginLeft: 4,
-            }}
-          >
-            {fields.date || "\u00a0"}
-          </span>
-        )}
+        <V fkey="date" fields={fields} editing={editing} onChange={onChange} />
       </div>
 
       <div style={{ fontWeight: "bold", marginBottom: 8 }}>
@@ -121,29 +115,22 @@ export default function Form3A({ fields, editing, onChange }: Props) {
       </div>
       <div style={{ marginBottom: 18 }}>
         Marriage on Page:
-        <span
-          style={{
-            display: "inline-block",
-            borderBottom: "1px solid #111",
-            minWidth: 70,
-            margin: "0 4px",
-          }}
-        >
-          &nbsp;
-        </span>
+        <V
+          fkey="page"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+          style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
+        />
         of Book no:
-        <span
-          style={{
-            display: "inline-block",
-            borderBottom: "1px solid #111",
-            minWidth: 70,
-            margin: "0 4px",
-          }}
-        >
-          &nbsp;
-        </span>
+        <V
+          fkey="book_no"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+          style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
+        />
       </div>
-
       <table
         style={{
           width: "100%",
@@ -193,11 +180,21 @@ export default function Form3A({ fields, editing, onChange }: Props) {
                 :
               </td>
               <td style={{ padding: "4px 4px", verticalAlign: "bottom" }}>
-                <V fkey={hKey} />
+                <V
+                  fkey={hKey}
+                  fields={fields}
+                  editing={editing}
+                  onChange={onChange}
+                />
               </td>
               <td></td>
               <td style={{ padding: "4px 4px", verticalAlign: "bottom" }}>
-                <V fkey={wKey} />
+                <V
+                  fkey={wKey}
+                  fields={fields}
+                  editing={editing}
+                  onChange={onChange}
+                />
               </td>
             </tr>
           ))}
@@ -234,24 +231,12 @@ export default function Form3A({ fields, editing, onChange }: Props) {
                 :
               </td>
               <td style={{ padding: "4px 0", verticalAlign: "bottom" }}>
-                {editing ? (
-                  <input
-                    value={fields[key] || ""}
-                    onChange={(e) => onChange(key, e.target.value)}
-                    style={inp()}
-                  />
-                ) : (
-                  <span
-                    style={{
-                      borderBottom: "1px solid #111",
-                      minWidth: 200,
-                      display: "inline-block",
-                      minHeight: 18,
-                    }}
-                  >
-                    {fields[key] || "\u00a0"}
-                  </span>
-                )}
+                <V
+                  fkey={key}
+                  fields={fields}
+                  editing={editing}
+                  onChange={onChange}
+                />
               </td>
             </tr>
           ))}
@@ -260,25 +245,12 @@ export default function Form3A({ fields, editing, onChange }: Props) {
 
       <div style={{ marginBottom: 20, lineHeight: 2 }}>
         This certification is issued to&nbsp;
-        {editing ? (
-          <input
-            value={fields.issued_to || ""}
-            onChange={(e) => onChange("issued_to", e.target.value)}
-            style={inp({ minWidth: 280, width: "auto" })}
-          />
-        ) : (
-          <span
-            style={{
-              display: "inline-block",
-              borderBottom: "1px solid #111",
-              minWidth: 280,
-              margin: "0 4px",
-              verticalAlign: "bottom",
-            }}
-          >
-            {fields.issued_to || "\u00a0"}
-          </span>
-        )}
+        <V
+          fkey="issued_to"
+          fields={fields}
+          editing={editing}
+          onChange={onChange}
+        />
         &nbsp;upon his/her request.
       </div>
 
@@ -292,15 +264,12 @@ export default function Form3A({ fields, editing, onChange }: Props) {
             height: 18,
           }}
         >
-          {editing ? (
-            <input
-              value={fields.verified_by || ""}
-              onChange={(e) => onChange("verified_by", e.target.value)}
-              style={inp()}
-            />
-          ) : (
-            fields.verified_by
-          )}
+          <V
+            fkey="verified_by"
+            fields={fields}
+            editing={editing}
+            onChange={onChange}
+          />
         </div>
         <div
           style={{
@@ -310,15 +279,12 @@ export default function Form3A({ fields, editing, onChange }: Props) {
             height: 18,
           }}
         >
-          {editing ? (
-            <input
-              value={fields.verified_pos || ""}
-              onChange={(e) => onChange("verified_pos", e.target.value)}
-              style={inp()}
-            />
-          ) : (
-            fields.verified_pos
-          )}
+          <V
+            fkey="verified_pos"
+            fields={fields}
+            editing={editing}
+            onChange={onChange}
+          />
         </div>
       </div>
 
@@ -341,24 +307,12 @@ export default function Form3A({ fields, editing, onChange }: Props) {
           >
             <span style={{ width: 110 }}>{label}</span>
             <span>:</span>
-            {editing ? (
-              <input
-                value={fields[key] || ""}
-                onChange={(e) => onChange(key, e.target.value)}
-                style={inp({ minWidth: 110, width: "auto" })}
-              />
-            ) : (
-              <span
-                style={{
-                  borderBottom: "1px solid #111",
-                  minWidth: 110,
-                  height: 18,
-                  display: "inline-block",
-                }}
-              >
-                {fields[key]}
-              </span>
-            )}
+            <V
+              fkey={key}
+              fields={fields}
+              editing={editing}
+              onChange={onChange}
+            />
           </div>
         ))}
       </div>
