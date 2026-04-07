@@ -14,7 +14,15 @@ export async function processDocument(
 
   const res = await fetch(HF_API_URL, { method: 'POST', body })
   if (!res.ok) throw new Error(`OCR server error: ${res.status}`)
-  return res.json()
+
+  const result = await res.json()
+
+  // Surface blank-page / no-text errors to the caller
+  if (result?.status === 'error') {
+    throw new Error(result.message ?? 'Document processing failed')
+  }
+
+  return result
 }
 
 // ── Field assembly (maps API fields → display values) ─────────
