@@ -35,19 +35,10 @@ const date3 = (m?: string, d?: string, y?: string) =>
 const place2 = (a?: string, b?: string) =>
   [a, b].filter(Boolean).join(', ')
 
-const cleanCause = (v?: string) => {
-  if (!v) return ''
-
-  let t = v.trim()
-
-  t = t.replace(/\/+\s*$/g, '')     // remove trailing /
-  t = t.replace(/\s+/g, ' ')        // normalize spaces
-
-  if (t.length <= 2) return ''      // remove noise like "tt", "."
-  if (!/[a-zA-Z]/.test(t)) return '' // must have letters
-
-  return t
-}
+const cleanCause = (v?: string) =>
+  (v || '')
+    .replace(/\/+$/g, '')   // remove only ending slash
+    .trim()
 export function assembleFields(
   formClass: FormClass,
   f: Record<string, string>
