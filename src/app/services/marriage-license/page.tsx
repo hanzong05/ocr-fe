@@ -26,8 +26,12 @@ export default function MarriageLicensePage() {
       sessionStorage.setItem('lcr_form_class', '90')
       sessionStorage.setItem('lcr_fields', JSON.stringify(assembled))
       router.push('/services/marriage-license/template')
-    } catch {
-      notify('Could not reach the OCR server. Check your internet connection.', 'error')
+    } catch (err) {
+      notify(
+        err instanceof Error ? err.message : "Could not reach the OCR server. Check your internet connection.",
+        "error",
+      );
+      console.error(err);
     } finally {
       setLoading(false)
     }

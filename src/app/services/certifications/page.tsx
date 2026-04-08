@@ -40,7 +40,7 @@ export default function CertificationsPage() {
       router.push("/services/certifications/template");
     } catch (err) {
       notify(
-        "Could not reach the OCR server. Check your internet connection.",
+        err instanceof Error ? err.message : "Could not reach the OCR server. Check your internet connection.",
         "error",
       );
       console.error(err);
