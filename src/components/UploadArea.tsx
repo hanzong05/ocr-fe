@@ -38,25 +38,20 @@ export default function UploadArea({
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     setDragging(false)
-
     const droppedFiles = Array.from(e.dataTransfer.files)
     const validFiles = filterValidFiles(droppedFiles)
-
     if (validFiles.length > 0) {
-      onFiles([...files, ...validFiles])
+      onFiles([validFiles[0]]) // ← replace, don't append; take only first
     }
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return
-
     const selectedFiles = Array.from(e.target.files)
     const validFiles = filterValidFiles(selectedFiles)
-
     if (validFiles.length > 0) {
-      onFiles([...files, ...validFiles])
+      onFiles([validFiles[0]]) // ← same here
     }
-
     e.target.value = ''
   }
 
@@ -110,7 +105,7 @@ export default function UploadArea({
         ref={inputRef}
         type="file"
         accept={accept}
-        multiple
+        // multiple  ← remove this
         style={{ display: 'none' }}
         onChange={handleChange}
       />
