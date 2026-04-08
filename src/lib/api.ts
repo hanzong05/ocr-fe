@@ -89,6 +89,7 @@ export function assembleFields(
   if (formClass === '3A') {
     return {
       ...shared,
+      date_reg: '',
       dom: date3(f.marriage_month, f.marriage_day, f.marriage_year),
       pom: place2(f.marriage_venue || f.marriage_city, f.marriage_province),
       husband_name: join(f.husband_first, f.husband_middle, f.husband_last),
@@ -105,6 +106,7 @@ export function assembleFields(
       wife_mother_nat: f.wife_mother_citizenship || '',
       wife_father: join(f.wife_father_first, f.wife_father_last),
       wife_father_nat: f.wife_father_citizenship || '',
+
     }
   }
 
