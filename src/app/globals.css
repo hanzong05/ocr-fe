@@ -286,27 +286,22 @@ body {
 
   /* ── ADD THESE ── */
 
-  /* Remove modal scroll clipping */
-  .print-area~*,
-  .print-area,
-  .print-area>*,
-  .print-area>*>* {
-    max-height: none !important;
-    overflow: visible !important;
-    height: auto !important;
+  /* Fix text overflow cutting off on right */
+  .print-area p,
+  .print-area span,
+  .print-area div {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    max-width: 100% !important;
   }
 
-  /* Allow content to flow across print pages */
-  .print-area * {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  /* Let the form itself break across pages if needed */
-  .lcr-3a-grid,
-  .lcr-footer {
-    page-break-inside: auto;
-    break-inside: auto;
+  /* Fix the body text paragraphs specifically */
+  .lcr-body-text {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    width: 100% !important;
   }
 
   .no-print {
