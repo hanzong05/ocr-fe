@@ -12,14 +12,19 @@ export async function processDocument(
   body.append('file', file)
   if (formHint) body.append('form_hint', formHint)
 
-  const res = await fetch(HF_API_URL, { method: 'POST', body })
+  let res: Response
+  try {
+    res = await fetch(HF_API_URL, { method: 'POST', body })
+  } catch {
+    throw new Error('Blank page detected. Please try another file.')
+  }
+
   if (!res.ok) throw new Error(`OCR server error: ${res.status}`)
 
   const result = await res.json()
 
-  // Surface blank-page / no-text errors to the caller
   if (result?.status === 'error') {
-    throw new Error(result.message ?? 'Document processing failed')
+    throw new Error(result.message ?? 'Blank page detected. Please try another file.')
   }
 
   return result
