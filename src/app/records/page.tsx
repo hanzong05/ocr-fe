@@ -61,8 +61,8 @@ export default function RecordsPage() {
 
   function openRecord(r: LcrRecord) {
     setSelected(r);
-    setEditFields(r.form_data || {});
-    setEditFields(selected?.form_data || {});
+    setEditFields(r.form_data || {}); // ✅ use `r` directly, not `selected`
+    setOriginalFields(r.form_data || {}); // ✅ also set this so Cancel can restore
     setEditing(false);
   }
 
