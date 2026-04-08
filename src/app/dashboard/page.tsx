@@ -336,7 +336,18 @@ export default function DashboardPage() {
               </p>
             </div>
             <button
-              onClick={() => window.location.reload()}
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  const docs = await fetchDocuments();
+                  setDocuments(docs);
+                } catch (error) {
+                  console.error("Failed to fetch documents:", error);
+                  notify("Failed to load dashboard data", "error");
+                } finally {
+                  setLoading(false);
+                }
+              }}
               style={{
                 background: "#10b981",
                 color: "white",
