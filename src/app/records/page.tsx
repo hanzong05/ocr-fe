@@ -13,11 +13,11 @@ import Form3A from "@/components/forms/Form3A";
 import Form90 from "@/components/forms/Form90";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> =
-  {
-    Pending: { bg: "#fff8ec", text: "#d68000", dot: "#f39c12" },
-    Approved: { bg: "#edfaf3", text: "#1a7a45", dot: "#27ae60" },
-    Rejected: { bg: "#fef0f0", text: "#c0392b", dot: "#e74c3c" },
-  };
+{
+  Pending: { bg: "#fff8ec", text: "#d68000", dot: "#f39c12" },
+  Approved: { bg: "#edfaf3", text: "#1a7a45", dot: "#27ae60" },
+  Rejected: { bg: "#fef0f0", text: "#c0392b", dot: "#e74c3c" },
+};
 
 export default function RecordsPage() {
   const { isLoggedIn } = useApp();
@@ -32,6 +32,7 @@ export default function RecordsPage() {
   const [editFields, setEditFields] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [originalFields, setOriginalFields] = useState({});
 
   useEffect(() => {
     if (!isLoggedIn) router.push("/login");
@@ -61,8 +62,8 @@ export default function RecordsPage() {
   function openRecord(r: LcrRecord) {
     setSelected(r);
     setEditFields(r.form_data || {});
+    setEditFields(selected?.form_data || {});
     setEditing(false);
-    setPendingStatus(null);
   }
 
   async function saveRecord() {
@@ -392,8 +393,8 @@ export default function RecordsPage() {
                         (e.currentTarget.style.background = "#f4fbf7")
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.background =
-                          i % 2 === 0 ? "white" : "#fcfcfc")
+                      (e.currentTarget.style.background =
+                        i % 2 === 0 ? "white" : "#fcfcfc")
                       }
                     >
                       <td
@@ -472,8 +473,8 @@ export default function RecordsPage() {
                             transition: "all 0.15s",
                           }}
                           onMouseEnter={(e) =>
-                            (e.currentTarget.style.background =
-                              "var(--primary-green)")
+                          (e.currentTarget.style.background =
+                            "var(--primary-green)")
                           }
                           onMouseLeave={(e) =>
                             (e.currentTarget.style.background = "var(--navy)")
@@ -628,7 +629,13 @@ export default function RecordsPage() {
             >
               {/* Edit / Cancel */}
               <button
-                onClick={() => setEditing((e) => !e)}
+                onClick={() => {
+                  if (editing) {
+                    setEditFields(originalFields); // ✅ restore original
+                    setPendingStatus(null);
+                  }
+                  setEditing((e) => !e);
+                }}
                 style={{
                   padding: "8px 18px",
                   background: editing ? "#f0f0f0" : "var(--navy)",
@@ -717,8 +724,8 @@ export default function RecordsPage() {
                       (e.currentTarget.style.background = hov)
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.background =
-                        pendingStatus === status ? hov : bg)
+                    (e.currentTarget.style.background =
+                      pendingStatus === status ? hov : bg)
                     }
                   >
                     {label}
