@@ -18,7 +18,11 @@
   --font-main: 'Poppins', sans-serif;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: var(--font-main);
@@ -28,8 +32,13 @@ body {
 }
 
 /* ── LCR Form styles ─────────────────────────── */
-.lcr-form-variant { display: none; }
-.lcr-form-variant.active-form { display: block; }
+.lcr-form-variant {
+  display: none;
+}
+
+.lcr-form-variant.active-form {
+  display: block;
+}
 
 .lcr-header {
   display: flex;
@@ -39,11 +48,36 @@ body {
   padding-bottom: 12px;
   border-bottom: 2px solid var(--primary-green);
 }
-.lcr-form-tag { font-size: 11px; font-weight: 700; color: var(--primary-green); line-height: 1.4; }
-.lcr-title-block { text-align: center; font-size: 12px; font-weight: 600; }
-.lcr-date-block { font-size: 11px; text-align: right; }
-.lcr-concern { font-weight: 700; font-size: 13px; margin: 10px 0 6px; }
-.lcr-body-text { font-size: 12px; margin-bottom: 12px; }
+
+.lcr-form-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-green);
+  line-height: 1.4;
+}
+
+.lcr-title-block {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lcr-date-block {
+  font-size: 11px;
+  text-align: right;
+}
+
+.lcr-concern {
+  font-weight: 700;
+  font-size: 13px;
+  margin: 10px 0 6px;
+}
+
+.lcr-body-text {
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
 .lcr-field-row {
   display: flex;
   align-items: baseline;
@@ -51,7 +85,13 @@ body {
   margin-bottom: 6px;
   font-size: 12px;
 }
-.lcr-field-row label { min-width: 180px; font-weight: 600; color: var(--navy); }
+
+.lcr-field-row label {
+  min-width: 180px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
 .lcr-field-line {
   flex: 1;
   border-bottom: 1px solid #999;
@@ -61,10 +101,27 @@ body {
   outline: none;
   background: transparent;
 }
-.lcr-field-line.filled { background: #fffde7; border-color: #f0d000; }
-.lcr-field-short { width: 60px; border-bottom: 1px solid #999; display: inline-block; }
-.lcr-issued-to { font-size: 12px; margin: 12px 0; }
-.lcr-issued-line { min-width: 200px; }
+
+.lcr-field-line.filled {
+  background: #fffde7;
+  border-color: #f0d000;
+}
+
+.lcr-field-short {
+  width: 60px;
+  border-bottom: 1px solid #999;
+  display: inline-block;
+}
+
+.lcr-issued-to {
+  font-size: 12px;
+  margin: 12px 0;
+}
+
+.lcr-issued-line {
+  min-width: 200px;
+}
+
 .lcr-footer {
   display: flex;
   justify-content: space-between;
@@ -72,15 +129,61 @@ body {
   padding-top: 12px;
   border-top: 1px solid var(--light-gray);
 }
-.lcr-verified { font-size: 12px; }
-.lcr-sig-line { border-bottom: 1px solid #333; min-width: 160px; height: 24px; margin: 4px 0; }
-.lcr-payment { font-size: 11px; }
-.lcr-note { font-size: 10px; font-style: italic; margin-top: 12px; color: var(--gray); }
-.lcr-3a-grid { display: flex; gap: 16px; margin: 10px 0; }
-.lcr-3a-col { flex: 1; }
-.lcr-3a-colhead { font-weight: 700; font-size: 12px; text-align: center; padding: 4px; background: var(--light-green); border-radius: 4px; margin-bottom: 8px; }
-.lcr-3a-row { display: flex; gap: 8px; align-items: baseline; margin-bottom: 5px; font-size: 11px; }
-.lcr-3a-row label { min-width: 120px; font-weight: 600; }
+
+.lcr-verified {
+  font-size: 12px;
+}
+
+.lcr-sig-line {
+  border-bottom: 1px solid #333;
+  min-width: 160px;
+  height: 24px;
+  margin: 4px 0;
+}
+
+.lcr-payment {
+  font-size: 11px;
+}
+
+.lcr-note {
+  font-size: 10px;
+  font-style: italic;
+  margin-top: 12px;
+  color: var(--gray);
+}
+
+.lcr-3a-grid {
+  display: flex;
+  gap: 16px;
+  margin: 10px 0;
+}
+
+.lcr-3a-col {
+  flex: 1;
+}
+
+.lcr-3a-colhead {
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+  padding: 4px;
+  background: var(--light-green);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.lcr-3a-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
+.lcr-3a-row label {
+  min-width: 120px;
+  font-weight: 600;
+}
 
 /* ── Notification ────────────────────────────── */
 .notification {
@@ -94,12 +197,35 @@ body {
   font-weight: 500;
   animation: slideIn 0.3s ease;
   max-width: 360px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-.notification.success { background: var(--success); color: white; }
-.notification.error   { background: var(--error);   color: white; }
-.notification.info    { background: #3498db;         color: white; }
-@keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.notification.success {
+  background: var(--success);
+  color: white;
+}
+
+.notification.error {
+  background: var(--error);
+  color: white;
+}
+
+.notification.info {
+  background: #3498db;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
 /* ── Upload area ─────────────────────────────── */
 .upload-area {
@@ -111,10 +237,13 @@ body {
   background: white;
   transition: all 0.2s;
 }
-.upload-area:hover, .upload-area.dragover {
+
+.upload-area:hover,
+.upload-area.dragover {
   border-color: var(--primary-green);
   background: var(--pale-green);
 }
+
 .file-item {
   display: flex;
   justify-content: space-between;
@@ -132,7 +261,6 @@ body {
     margin: 8mm 10mm;
   }
 
-  /* Hide everything except the form */
   body * {
     visibility: hidden;
   }
@@ -154,6 +282,31 @@ body {
     box-shadow: none !important;
     background: white !important;
     overflow: visible !important;
+  }
+
+  /* ── ADD THESE ── */
+
+  /* Remove modal scroll clipping */
+  .print-area~*,
+  .print-area,
+  .print-area>*,
+  .print-area>*>* {
+    max-height: none !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Allow content to flow across print pages */
+  .print-area * {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Let the form itself break across pages if needed */
+  .lcr-3a-grid,
+  .lcr-footer {
+    page-break-inside: auto;
+    break-inside: auto;
   }
 
   .no-print {
