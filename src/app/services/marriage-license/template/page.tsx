@@ -68,7 +68,7 @@ export default function MarriageTemplatePage() {
             >
               {editing ? "✕ CANCEL" : "✏ EDIT"}
             </button>
-            <button
+            {/* <button
               onClick={() => window.print()}
               style={{
                 padding: "10px 20px",
@@ -81,7 +81,7 @@ export default function MarriageTemplatePage() {
               }}
             >
               🖨 PRINT
-            </button>
+            </button> */}
             <button
               onClick={save}
               disabled={saving}

@@ -122,7 +122,7 @@ export default function CertTemplatePage() {
               >
                 {editing ? "✕ CANCEL" : "✏ EDIT"}
               </button>
-              <button
+              {/* <button
                 onClick={() => window.print()}
                 style={{
                   padding: "10px 20px",
@@ -135,7 +135,7 @@ export default function CertTemplatePage() {
                 }}
               >
                 🖨 PRINT
-              </button>
+              </button> */}
               <button
                 onClick={save}
                 disabled={saving}
