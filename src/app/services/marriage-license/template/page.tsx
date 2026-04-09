@@ -11,6 +11,7 @@ export default function MarriageTemplatePage() {
   const { isLoggedIn, user, notify } = useApp();
   const router = useRouter();
   const [fields, setFields] = useState<Record<string, string>>({});
+  const [originalFields, setOriginalFields] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -19,7 +20,9 @@ export default function MarriageTemplatePage() {
   }, [isLoggedIn, router]);
 
   useEffect(() => {
-    setFields(JSON.parse(sessionStorage.getItem("lcr_fields") || "{}"));
+    const f = JSON.parse(sessionStorage.getItem("lcr_fields") || "{}");
+    setFields(f);
+    setOriginalFields(f); // snapshot for cancel
   }, []);
 
   if (!isLoggedIn) return null;
@@ -28,6 +31,7 @@ export default function MarriageTemplatePage() {
     setSaving(true);
     try {
       await saveDocument(Number(user?.id), 4, fields);
+      setOriginalFields(fields); // update snapshot after successful save
       notify("Marriage license saved!", "success");
       router.push("/services");
     } catch (e: unknown) {
@@ -55,7 +59,12 @@ export default function MarriageTemplatePage() {
             style={{ display: "flex", gap: 10, marginBottom: 20 }}
           >
             <button
-              onClick={() => setEditing((e) => !e)}
+              onClick={() => {
+                if (editing) {
+                  setFields(originalFields); // restore on cancel
+                }
+                setEditing((e) => !e);
+              }}
               style={{
                 padding: "10px 20px",
                 background: editing ? "#aaa" : "var(--navy)",
@@ -68,20 +77,6 @@ export default function MarriageTemplatePage() {
             >
               {editing ? "✕ CANCEL" : "✏ EDIT"}
             </button>
-            {/* <button
-              onClick={() => window.print()}
-              style={{
-                padding: "10px 20px",
-                background: "var(--navy)",
-                color: "white",
-                border: "none",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: 600,
-              }}
-            >
-              🖨 PRINT
-            </button> */}
             <button
               onClick={save}
               disabled={saving}

@@ -31,6 +31,13 @@ export default function CertificationsPage() {
         notify("Processing failed: " + data.message, "error");
         return;
       }
+
+      // ✅ Block Form 90 — wrong page
+      if (data.form_class === "90") {
+        notify("This is a Marriage License (Form 90). Please upload it under Marriage License instead.", "error");
+        return;
+      }
+
       const assembled = assembleFields(
         data.form_class as FormClass,
         data.fields,

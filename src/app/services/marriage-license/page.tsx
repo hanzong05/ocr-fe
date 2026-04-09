@@ -22,6 +22,13 @@ export default function MarriageLicensePage() {
     try {
       const data = await processDocument(files[0], '90')
       if (data.status !== 'success') { notify('Processing failed: ' + data.message, 'error'); return }
+
+      // ✅ Block non-Form-90 uploads
+      if (data.form_class !== '90') {
+        notify(`This appears to be a Form ${data.form_class} (Certification). Please upload it under Certifications instead.`, 'error')
+        return
+      }
+
       const assembled = assembleFields('90', data.fields)
       sessionStorage.setItem('lcr_form_class', '90')
       sessionStorage.setItem('lcr_fields', JSON.stringify(assembled))
@@ -30,8 +37,8 @@ export default function MarriageLicensePage() {
       notify(
         err instanceof Error ? err.message : "Could not reach the OCR server. Check your internet connection.",
         "error",
-      );
-      console.error(err);
+      )
+      console.error(err)
     } finally {
       setLoading(false)
     }

@@ -14,6 +14,7 @@ export default function CertTemplatePage() {
   const router = useRouter();
   const [formClass, setFormClass] = useState<string>("");
   const [fields, setFields] = useState<Record<string, string>>({});
+  const [originalFields, setOriginalFields] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -26,6 +27,7 @@ export default function CertTemplatePage() {
     const f = JSON.parse(sessionStorage.getItem("lcr_fields") || "{}");
     setFormClass(fc);
     setFields(f);
+    setOriginalFields(f); // ✅ snapshot for cancel
   }, []);
 
   if (!isLoggedIn) return null;
@@ -38,6 +40,7 @@ export default function CertTemplatePage() {
     setSaving(true);
     try {
       await saveDocument(Number(user?.id), TYPE_ID[formClass] ?? 1, fields);
+      setOriginalFields(fields); // ✅ update snapshot after successful save
       notify("Certification saved successfully!", "success");
       router.push("/services");
     } catch (e: unknown) {
@@ -56,60 +59,38 @@ export default function CertTemplatePage() {
     <>
       <style>{`
         @media print {
-          .no-print {
-            display: none !important;
-          }
-          body, html {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          main {
-            padding: 0 !important;
-            flex: unset !important;
-          }
-          .print-wrapper {
-            padding: 0 !important;
-          }
+          .no-print { display: none !important; }
+          body, html { margin: 0 !important; padding: 0 !important; background: white !important; }
+          main { padding: 0 !important; flex: unset !important; }
+          .print-wrapper { padding: 0 !important; }
           .print-area {
-            padding: 0 !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            min-height: unset !important;
-            background: white !important;
+            padding: 0 !important; margin: 0 !important;
+            box-shadow: none !important; border-radius: 0 !important;
+            min-height: unset !important; background: white !important;
           }
-          @page {
-            size: Letter;
-            margin: 0;
-          }
+          @page { size: Letter; margin: 0; }
         }
       `}</style>
 
-      <div
-        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-      >
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         <div className="no-print">
           <Notification />
           <Header />
         </div>
 
         <main style={{ flex: 1, padding: 24 }}>
-          <div
-            className="print-wrapper"
-            style={{ maxWidth: 780, margin: "0 auto" }}
-          >
+          <div className="print-wrapper" style={{ maxWidth: 780, margin: "0 auto" }}>
             <div
               className="no-print"
-              style={{
-                display: "flex",
-                gap: 10,
-                marginBottom: 20,
-                flexWrap: "wrap",
-              }}
+              style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}
             >
               <button
-                onClick={() => setEditing((e) => !e)}
+                onClick={() => {
+                  if (editing) {
+                    setFields(originalFields); // ✅ restore on cancel
+                  }
+                  setEditing((e) => !e);
+                }}
                 style={{
                   padding: "10px 20px",
                   background: editing ? "#aaa" : "var(--navy)",
@@ -122,20 +103,6 @@ export default function CertTemplatePage() {
               >
                 {editing ? "✕ CANCEL" : "✏ EDIT"}
               </button>
-              {/* <button
-                onClick={() => window.print()}
-                style={{
-                  padding: "10px 20px",
-                  background: "var(--navy)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  fontWeight: 600,
-                }}
-              >
-                🖨 PRINT
-              </button> */}
               <button
                 onClick={save}
                 disabled={saving}
