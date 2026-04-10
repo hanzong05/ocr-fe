@@ -1,13 +1,16 @@
 "use client";
+
 import { useRouter, usePathname } from "next/navigation";
 import { useApp } from "@/context/AppContext";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Header() {
   const { isLoggedIn, user, logout } = useApp();
   const router = useRouter();
   const pathname = usePathname();
+
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const canGoBack = pathname !== "/services";
 
@@ -18,9 +21,26 @@ export default function Header() {
   function handleLogout() {
     if (confirm("Are you sure you want to logout?")) {
       logout();
+      setMenuOpen(false);
       router.push("/login");
     }
   }
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
 
   return (
     <header
@@ -34,7 +54,6 @@ export default function Header() {
         position: "relative",
       }}
     >
-      {/* Philippine flag stripe */}
       <div
         style={{
           position: "absolute",
@@ -69,6 +88,7 @@ export default function Header() {
             </svg>
           </button>
         )}
+
         <h1
           onClick={() => isLoggedIn && router.push("/services")}
           style={{
@@ -77,6 +97,7 @@ export default function Header() {
             color: "white",
             cursor: isLoggedIn ? "pointer" : "default",
             letterSpacing: 0.5,
+            margin: 0,
           }}
         >
           LOCAL CIVIL REGISTRY
@@ -103,6 +124,7 @@ export default function Header() {
           >
             SERVICES
           </button>
+
           <button
             onClick={() => router.push("/dashboard")}
             style={{
@@ -118,6 +140,7 @@ export default function Header() {
           >
             DASHBOARD
           </button>
+
           <button
             onClick={() => router.push("/records")}
             style={{
@@ -133,9 +156,10 @@ export default function Header() {
           >
             RECORDS
           </button>
-          <div style={{ position: "relative" }}>
+
+          <div ref={menuRef} style={{ position: "relative" }}>
             <button
-              onClick={() => setMenuOpen((o) => !o)}
+              onClick={() => setMenuOpen((prev) => !prev)}
               style={{
                 background: "rgba(255,255,255,0.2)",
                 border: "none",
@@ -152,6 +176,7 @@ export default function Header() {
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
             </button>
+
             {menuOpen && (
               <div
                 style={{
@@ -163,18 +188,23 @@ export default function Header() {
                   boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
                   minWidth: 200,
                   zIndex: 100,
+                  overflow: "hidden",
                 }}
               >
                 <div
-                  style={{ padding: "16px", borderBottom: "1px solid #eee" }}
+                  style={{
+                    padding: "16px",
+                    borderBottom: "1px solid #eee",
+                  }}
                 >
                   <div style={{ fontWeight: 700, fontSize: 14 }}>
-                    {user?.name}
+                    {user?.name || "User"}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--gray)" }}>
-                    {user?.role}
+                    {user?.role || ""}
                   </div>
                 </div>
+
                 <button
                   onClick={handleLogout}
                   style={{
