@@ -12,11 +12,26 @@ export async function processDocument(
   body.append('file', file)
   if (formHint) body.append('form_hint', formHint)
 
+  // ✅ 3-minute timeout — OCR pipeline can take 60-120s on cold start
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 3 * 60 * 1000)
+
   let res: Response
   try {
-    res = await fetch(HF_API_URL, { method: 'POST', body })
-  } catch {
-    throw new Error('Blank page detected. Please try another file.')
+    res = await fetch(HF_API_URL, {
+      method: 'POST',
+      body,
+      signal: controller.signal,
+    })
+  } catch (err) {
+    clearTimeout(timeoutId)
+    // ✅ Distinguish timeout from actual network failure
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('The OCR server is taking too long to respond. Please try again in a moment.')
+    }
+    throw new Error('Could not reach the OCR server. Check your internet connection.')
+  } finally {
+    clearTimeout(timeoutId)
   }
 
   if (!res.ok) throw new Error(`OCR server error: ${res.status}`)
@@ -24,7 +39,7 @@ export async function processDocument(
   const result = await res.json()
 
   if (result?.status === 'error') {
-    throw new Error(result.message ?? 'Blank page detected. Please try another file.')
+    throw new Error(result.message ?? 'Processing failed. Please try again.')
   }
 
   return result
