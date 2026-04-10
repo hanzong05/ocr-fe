@@ -1,6 +1,8 @@
 import { ProcessResult, FormClass, LcrRecord } from './types'
 import { supabase } from './supabase'
 
+
+// ── HF Space OCR ──────────────────────────────────────────────
 const HF_API_URL = 'https://hanz245-ocr.hf.space/process'
 
 // ── HF Space OCR ──────────────────────────────────────────────
@@ -12,26 +14,40 @@ export async function processDocument(
   body.append('file', file)
   if (formHint) body.append('form_hint', formHint)
 
-  // ✅ 3-minute timeout — OCR pipeline can take 60-120s on cold start
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 3 * 60 * 1000)
+  // HuggingFace Spaces can take 3-5 minutes on cold start or heavy load
+  const TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes
+
+  const attemptFetch = async (): Promise<Response> => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS)
+    try {
+      const res = await fetch(HF_API_URL, {
+        method: 'POST',
+        body,
+        signal: controller.signal,
+      })
+      return res
+    } finally {
+      clearTimeout(timeoutId)
+    }
+  }
 
   let res: Response
   try {
-    res = await fetch(HF_API_URL, {
-      method: 'POST',
-      body,
-      signal: controller.signal,
-    })
+    res = await attemptFetch()
   } catch (err) {
-    clearTimeout(timeoutId)
-    // ✅ Distinguish timeout from actual network failure
     if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new Error('The OCR server is taking too long to respond. Please try again in a moment.')
+      throw new Error('The OCR server is taking too long to respond (over 5 minutes). Please try again.')
     }
-    throw new Error('Could not reach the OCR server. Check your internet connection.')
-  } finally {
-    clearTimeout(timeoutId)
+    // ✅ On network error, retry once — HF Spaces sometimes drops the first connection
+    try {
+      res = await attemptFetch()
+    } catch (retryErr) {
+      if (retryErr instanceof DOMException && retryErr.name === 'AbortError') {
+        throw new Error('The OCR server is taking too long to respond (over 5 minutes). Please try again.')
+      }
+      throw new Error('Could not reach the OCR server. Check your internet connection.')
+    }
   }
 
   if (!res.ok) throw new Error(`OCR server error: ${res.status}`)
