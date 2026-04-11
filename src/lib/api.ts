@@ -14,53 +14,33 @@ export async function processDocument(
   body.append('file', file)
   if (formHint) body.append('form_hint', formHint)
 
-  // HuggingFace Spaces can take 3-5 minutes on cold start or heavy load
-  const TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 5 * 60 * 1000)
 
-  const attemptFetch = async (): Promise<Response> => {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS)
-    try {
-      const res = await fetch(HF_API_URL, {
-        method: 'POST',
-        body,
-        signal: controller.signal,
-      })
-      return res
-    } finally {
-      clearTimeout(timeoutId)
-    }
-  }
-
-  let res: Response
   try {
-    res = await attemptFetch()
+    const res = await fetch(HF_API_URL, {
+      method: 'POST',
+      body,
+      signal: controller.signal,
+    })
+
+    if (!res.ok) throw new Error(`OCR server error: ${res.status}`)
+
+    const result = await res.json()
+    if (result?.status === 'error') {
+      throw new Error(result.message ?? 'Processing failed. Please try again.')
+    }
+
+    return result
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
       throw new Error('The OCR server is taking too long to respond (over 5 minutes). Please try again.')
     }
-    // ✅ On network error, retry once — HF Spaces sometimes drops the first connection
-    try {
-      res = await attemptFetch()
-    } catch (retryErr) {
-      if (retryErr instanceof DOMException && retryErr.name === 'AbortError') {
-        throw new Error('The OCR server is taking too long to respond (over 5 minutes). Please try again.')
-      }
-      throw new Error('Could not reach the OCR server. Check your internet connection.')
-    }
+    throw new Error('Could not reach the OCR server. Check your internet connection.')
+  } finally {
+    clearTimeout(timeoutId)
   }
-
-  if (!res.ok) throw new Error(`OCR server error: ${res.status}`)
-
-  const result = await res.json()
-
-  if (result?.status === 'error') {
-    throw new Error(result.message ?? 'Processing failed. Please try again.')
-  }
-
-  return result
 }
-
 // ── Field assembly (maps API fields → display values) ─────────
 const join = (...parts: (string | undefined)[]) =>
   parts.filter(Boolean).join(' ').trim()
