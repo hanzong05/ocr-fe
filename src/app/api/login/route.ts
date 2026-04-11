@@ -34,17 +34,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 })
   }
 
-  return NextResponse.json({
-    user: {
-      user_id: user.user_id,
-      id: user.user_id,
-      username: user.username,
-      full_name: user.full_name || '',
-      name: user.full_name || user.username,   // Header dropdown fallback
-      email: user.email || '',
-      role: user.role,
-      department: user.department || null,
-      employee_id: user.employee_id || null,
-    }
+  const userData = {
+    user_id: user.user_id,
+    id: user.user_id,
+    username: user.username,
+    full_name: user.full_name || '',
+    name: user.full_name || user.username,
+    email: user.email || '',
+    role: user.role,
+    department: user.department || '',
+    employee_id: user.employee_id || '',
+    employeeId: user.employee_id || '',
+  }
+
+  const response = NextResponse.json({ user: userData })
+
+  // ✅ Set session cookie so middleware allows access
+  response.cookies.set('lcr_session', user.user_id, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 8, // 8 hours
   })
+
+  return response
 }

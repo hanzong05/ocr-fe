@@ -33,14 +33,15 @@ export default function LoginPage() {
 
       login({
         user_id: data.user.user_id,
-        id: data.user.user_id, // alias
+        id: data.user.user_id,
         username: data.user.username,
         full_name: data.user.full_name,
-        name: data.user.full_name, // alias for Header dropdown
+        name: data.user.full_name,        // ✅ keep this
         email: data.user.email || "",
         role: data.user.role,
-        department: data.user.department || null,
+        department: data.user.department || "",   // ✅ empty string, not null
         employee_id: data.user.employee_id || null,
+        employeeId: data.user.employee_id || "",  // ✅ add this
       });
       notify("Login successful!", "success");
       router.push("/services");

@@ -6,11 +6,14 @@ import Header from '@/components/Header'
 import Notification from '@/components/Notification'
 
 export default function ServicesPage() {
-  const { isLoggedIn } = useApp()
+  const { isLoggedIn, hydrated } = useApp()  // ✅ add hydrated
   const router = useRouter()
 
-  useEffect(() => { if (!isLoggedIn) router.push('/login') }, [isLoggedIn, router])
-  if (!isLoggedIn) return null
+  useEffect(() => {
+    if (hydrated && !isLoggedIn) router.push('/login')  // ✅ wait for hydrated
+  }, [isLoggedIn, hydrated, router])
+
+  if (!hydrated || !isLoggedIn) return null  // ✅ wait before rendering
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -36,8 +39,8 @@ function ServiceBtn({ label, sub, onClick }: { label: string; sub: string; onCli
       borderRadius: 16, cursor: 'pointer', fontSize: 18, fontWeight: 700, color: 'var(--navy)',
       boxShadow: '0 4px 16px rgba(0,0,0,0.08)', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6
     }}
-    onMouseOver={e => (e.currentTarget.style.background = 'var(--light-green)')}
-    onMouseOut={e => (e.currentTarget.style.background = 'white')}
+      onMouseOver={e => (e.currentTarget.style.background = 'var(--light-green)')}
+      onMouseOut={e => (e.currentTarget.style.background = 'white')}
     >
       <span>{label}</span>
       {sub && <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--primary-green)' }}>{sub}</span>}
