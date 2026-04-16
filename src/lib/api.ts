@@ -24,18 +24,36 @@ export async function processDocument(
       signal: controller.signal,
     })
 
-    if (!res.ok) throw new Error(`OCR server error: ${res.status}`)
+    let result: any = null
+    try {
+      result = await res.json()
+    } catch {
+      result = null
+    }
 
-    const result = await res.json()
+    // backend returned a proper user-facing error
     if (result?.status === 'error') {
       throw new Error(result.message ?? 'Processing failed. Please try again.')
+    }
+
+    // non-JSON / server-level HTTP error
+    if (!res.ok) {
+      throw new Error(`OCR server error: ${res.status}`)
     }
 
     return result
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new Error('The OCR server is taking too long to respond (over 5 minutes). Please try again.')
+      throw new Error(
+        'The OCR server is taking too long to respond (over 5 minutes). Please try again.'
+      )
     }
+
+    // preserve real backend/user errors
+    if (err instanceof Error) {
+      throw err
+    }
+
     throw new Error('Could not reach the OCR server. Check your internet connection.')
   } finally {
     clearTimeout(timeoutId)
