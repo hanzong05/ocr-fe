@@ -3,7 +3,7 @@ import { supabase } from './supabase'
 
 
 // ── HF Space OCR ──────────────────────────────────────────────
-const HF_API_URL = 'https://hanz245-ocr.hf.space/process'
+const HF_API_URL = 'https://ifgr003-ocr.hf.space/process'
 
 // ── HF Space OCR ──────────────────────────────────────────────
 export async function processDocument(
