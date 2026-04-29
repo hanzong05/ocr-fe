@@ -14,15 +14,18 @@ export default function MarriageTemplatePage() {
   const [originalFields, setOriginalFields] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-
+  const [confidence, setConfidence] = useState<Record<string, number>>({});
   useEffect(() => {
     if (!isLoggedIn) router.push("/login");
   }, [isLoggedIn, router]);
 
   useEffect(() => {
     const f = JSON.parse(sessionStorage.getItem("lcr_fields") || "{}");
+    const c = JSON.parse(sessionStorage.getItem("lcr_confidence") || "{}");
+
     setFields(f);
-    setOriginalFields(f); // snapshot for cancel
+    setOriginalFields(f);
+    setConfidence(c);
   }, []);
 
   if (!isLoggedIn) return null;
@@ -106,6 +109,7 @@ export default function MarriageTemplatePage() {
           >
             <Form90
               fields={fields}
+              confidence={confidence}
               editing={editing}
               onChange={(k, v) => setFields((p) => ({ ...p, [k]: v }))}
             />

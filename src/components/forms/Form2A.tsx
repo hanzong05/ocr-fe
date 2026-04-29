@@ -1,6 +1,7 @@
 "use client";
 interface Props {
   fields: Record<string, string>;
+  confidence?: Record<string, number>;
   editing: boolean;
   onChange: (key: string, value: string) => void;
 }
@@ -28,12 +29,11 @@ const cellStyle: React.CSSProperties = {
 interface ValProps {
   fkey: string;
   fields: Record<string, string>;
+  confidence?: Record<string, number>;
   editing: boolean;
   onChange: (k: string, v: string) => void;
-  bold?: boolean;
-  style?: React.CSSProperties; // make sure this line exists
+  style?: React.CSSProperties;
 }
-
 function Val({ fkey, fields, editing, onChange, bold }: ValProps) {
   const v = fields[fkey] ?? "";
   const fw = bold ? "bold" : "normal";
@@ -61,8 +61,7 @@ const rows: [string, string, boolean?][] = [
   ["Place of Death", "pod"],
   ["Cause of Death", "cause"],
 ];
-
-export default function Form2A({ fields, editing, onChange }: Props) {
+export default function Form1A({ fields, confidence, editing, onChange }: Props) {
   return (
     <div
       style={{
@@ -85,6 +84,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
         <Val
           fkey="city"
           fields={fields}
+          confidence={confidence}
           editing={editing}
           onChange={onChange}
         />
@@ -94,6 +94,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
         <Val
           fkey="date"
           fields={fields}
+          confidence={confidence}
           editing={editing}
           onChange={onChange}
         />
@@ -111,6 +112,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
           fkey="page"
           fields={fields}
           editing={editing}
+          confidence={confidence}
           onChange={onChange}
           style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
         />
@@ -119,6 +121,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
           fkey="book_no"
           fields={fields}
           editing={editing}
+          confidence={confidence}
           onChange={onChange}
           style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
         />
@@ -155,6 +158,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
                   fkey={key}
                   fields={fields}
                   editing={editing}
+                  confidence={confidence}
                   onChange={onChange}
                   bold={bold}
                 />
@@ -168,6 +172,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
         <Val
           fkey="issued_to"
           fields={fields}
+          confidence={confidence}
           editing={editing}
           onChange={onChange}
         />
@@ -186,6 +191,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
           <Val
             fkey="verified_by"
             fields={fields}
+            confidence={confidence}
             editing={editing}
             onChange={onChange}
           />
@@ -201,6 +207,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
           <Val
             fkey="verified_pos"
             fields={fields}
+            confidence={confidence}
             editing={editing}
             onChange={onChange}
           />
@@ -228,6 +235,7 @@ export default function Form2A({ fields, editing, onChange }: Props) {
             <Val
               fkey={key}
               fields={fields}
+              confidence={confidence}
               editing={editing}
               onChange={onChange}
             />

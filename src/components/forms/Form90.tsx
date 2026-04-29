@@ -1,6 +1,7 @@
 "use client";
 interface Props {
   fields: Record<string, string>;
+  confidence?: Record<string, number>;
   editing: boolean;
   onChange: (key: string, value: string) => void;
 }
@@ -90,43 +91,64 @@ const pInstrBody: React.CSSProperties = {
 interface FieldProps {
   fkey: string;
   fields: Record<string, string>;
+  confidence?: Record<string, number>; // ADD THIS
   editing: boolean;
   onChange: (k: string, v: string) => void;
   inputWidth?: string | number;
 }
+function Accuracy({ value }: { value?: number }) {
+  if (value == null) return null;
 
-function Field({ fkey, fields, editing, onChange, inputWidth }: FieldProps) {
-  const val = fields[fkey] ?? "";
-  if (editing) {
-    return (
-      <input
-        type="text"
-        value={val}
-        onChange={(e) => onChange(fkey, e.target.value)}
-        style={{
-          border: "none",
-          borderBottom: "1px solid #333",
-          outline: "none",
-          background: "transparent",
-          fontFamily: '"Bookman Old Style", Bookman, Georgia, serif',
-          fontSize: "10pt",
-          fontStyle: "normal",
-          width: inputWidth ?? 160,
-          display: "inline",
-          verticalAlign: "baseline",
-        }}
-      />
-    );
-  }
+  const percent = Math.round(value * 100);
+
   return (
     <span
       style={{
-        textDecoration: "underline",
-        fontStyle: "normal",
-        display: "inline",
+        marginLeft: 6,
+        fontSize: 10,
+        fontWeight: "bold",
+        color: percent >= 85 ? "green" : percent >= 70 ? "orange" : "red",
       }}
     >
-      {val || "\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0"}
+      {percent}%
+    </span>
+  );
+}
+function Field({
+  fkey,
+  fields,
+  confidence,
+  editing,
+  onChange,
+  inputWidth,
+}: FieldProps) {
+  const val = fields[fkey] ?? "";
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center" }}>
+      {editing ? (
+        <input
+          type="text"
+          value={val}
+          onChange={(e) => onChange(fkey, e.target.value)}
+          style={{
+            border: "none",
+            borderBottom: "1px solid #333",
+            outline: "none",
+            background: "transparent",
+            fontFamily: '"Bookman Old Style", Bookman, Georgia, serif',
+            fontSize: "10pt",
+            width: inputWidth ?? 160,
+          }}
+        />
+      ) : (
+        <span style={{ textDecoration: "underline" }}>
+          {val || "\u00a0\u00a0\u00a0\u00a0"}
+        </span>
+      )}
+
+      {/* 👇 ADD THIS */}
+      <Accuracy value={confidence?.[fkey]} />
     </span>
   );
 }
@@ -148,11 +170,13 @@ function parseDateParts(dateStr: string) {
   return { day: "", month: "", year: "" };
 }
 
-export default function Form90({ fields, editing, onChange }: Props) {
+export default function Form90({ fields, confidence, editing, onChange }: Props) {
+
   const gv = (fkey: string, w?: string | number) => (
     <Field
       fkey={fkey}
       fields={fields}
+      confidence={confidence} // ADD THIS
       editing={editing}
       onChange={onChange}
       inputWidth={w}

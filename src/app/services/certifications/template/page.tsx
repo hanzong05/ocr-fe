@@ -17,17 +17,18 @@ export default function CertTemplatePage() {
   const [originalFields, setOriginalFields] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
+  const [confidence, setConfidence] = useState<Record<string, number>>({}); useEffect(() => {
     if (!isLoggedIn) router.push("/login");
   }, [isLoggedIn, router]);
-
   useEffect(() => {
     const fc = sessionStorage.getItem("lcr_form_class") || "1A";
     const f = JSON.parse(sessionStorage.getItem("lcr_fields") || "{}");
+    const c = JSON.parse(sessionStorage.getItem("lcr_confidence") || "{}");
+
     setFormClass(fc);
     setFields(f);
-    setOriginalFields(f); // ✅ snapshot for cancel
+    setOriginalFields(f);
+    setConfidence(c);
   }, []);
 
   if (!isLoggedIn) return null;
@@ -53,7 +54,7 @@ export default function CertTemplatePage() {
     }
   }
 
-  const formProps = { fields, editing, onChange: handleChange };
+  const formProps = { fields, confidence, editing, onChange: handleChange };
 
   return (
     <>

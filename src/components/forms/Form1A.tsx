@@ -1,6 +1,7 @@
 "use client";
 interface Props {
   fields: Record<string, string>;
+  confidence?: Record<string, number>;
   editing: boolean;
   onChange: (key: string, value: string) => void;
 }
@@ -29,23 +30,51 @@ const cellStyle: React.CSSProperties = {
 interface ValProps {
   fkey: string;
   fields: Record<string, string>;
+  confidence?: Record<string, number>;
   editing: boolean;
   onChange: (k: string, v: string) => void;
   style?: React.CSSProperties;
 }
 
-function Val({ fkey, fields, editing, onChange, style }: ValProps) {
+
+function Accuracy({ value }: { value?: number }) {
+  if (value == null) return null;
+
+  const percent = Math.round(value * 100);
+
+  return (
+    <span
+      style={{
+        marginLeft: 6,
+        fontSize: 10,
+        color: percent >= 85 ? "green" : percent >= 70 ? "orange" : "red",
+        fontWeight: "bold",
+      }}
+    >
+      {percent}%
+    </span>
+  );
+}
+
+function Val({ fkey, fields, confidence, editing, onChange, style }: ValProps) {
   const v = fields[fkey] ?? "";
-  if (editing)
-    return (
-      <input
-        type="text"
-        value={v}
-        onChange={(e) => onChange(fkey, e.target.value)}
-        style={inputStyle(style)}
-      />
-    );
-  return <span style={{ ...cellStyle, ...style }}>{v || "\u00a0"}</span>;
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center" }}>
+      {editing ? (
+        <input
+          type="text"
+          value={v}
+          onChange={(e) => onChange(fkey, e.target.value)}
+          style={inputStyle(style)}
+        />
+      ) : (
+        <span style={{ ...cellStyle, ...style }}>{v || "\u00a0"}</span>
+      )}
+
+      <Accuracy value={confidence?.[fkey]} />
+    </span>
+  );
 }
 
 const rows: [string, string][] = [
@@ -63,7 +92,7 @@ const rows: [string, string][] = [
   ["Place of Marriage of Parents", "marriage_place"],
 ];
 
-export default function Form1A({ fields, editing, onChange }: Props) {
+export default function Form1A({ fields, confidence, editing, onChange }: Props) {
   return (
     <div
       style={{
@@ -87,6 +116,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
           fkey="city"
           fields={fields}
           editing={editing}
+          confidence={confidence}
           onChange={onChange}
           style={{ textAlign: "center", width: "auto" }}
         />
@@ -97,6 +127,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
           fkey="date"
           fields={fields}
           editing={editing}
+          confidence={confidence}
           onChange={onChange}
           style={{ minWidth: 140, width: "auto" }}
         />
@@ -114,6 +145,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
           fkey="page"
           fields={fields}
           editing={editing}
+          confidence={confidence}
           onChange={onChange}
           style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
         />
@@ -122,6 +154,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
           fkey="book_no"
           fields={fields}
           editing={editing}
+          confidence={confidence}
           onChange={onChange}
           style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
         />
@@ -156,6 +189,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
                 <Val
                   fkey={key}
                   fields={fields}
+                  confidence={confidence}
                   editing={editing}
                   onChange={onChange}
                 />
@@ -170,6 +204,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
           fkey="issued_to"
           fields={fields}
           editing={editing}
+          confidence={confidence}
           onChange={onChange}
           style={{ minWidth: 280, width: "auto" }}
         />
@@ -189,6 +224,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
             fkey="verified_by"
             fields={fields}
             editing={editing}
+            confidence={confidence}
             onChange={onChange}
           />
         </div>
@@ -204,6 +240,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
             fkey="verified_pos"
             fields={fields}
             editing={editing}
+            confidence={confidence}
             onChange={onChange}
           />
         </div>
@@ -231,6 +268,7 @@ export default function Form1A({ fields, editing, onChange }: Props) {
               fkey={key}
               fields={fields}
               editing={editing}
+              confidence={confidence}
               onChange={onChange}
               style={{ minWidth: 110, width: "auto" }}
             />

@@ -1,29 +1,55 @@
 "use client";
 interface Props {
   fields: Record<string, string>;
+  confidence?: Record<string, number>;
   editing: boolean;
   onChange: (key: string, value: string) => void;
 }
 interface VProps {
   fkey: string;
   fields: Record<string, string>;
+  confidence?: Record<string, number>;
   editing: boolean;
   onChange: (k: string, v: string) => void;
   style?: React.CSSProperties; // add this
 }
+function Accuracy({ value }: { value?: number }) {
+  if (value == null) return null;
 
-function V({ fkey, fields, editing, onChange, style }: VProps) {
-  const v = fields[fkey] || "";
-  if (editing)
-    return (
-      <input
-        type="text"
-        value={v}
-        onChange={(e) => onChange(fkey, e.target.value)}
-        style={inp(style)} // pass style through
-      />
-    );
-  return <span style={{ ...cell, ...style }}>{v || "\u00a0"}</span>; // merge style
+  const percent = Math.round(value * 100);
+
+  return (
+    <span
+      style={{
+        marginLeft: 6,
+        fontSize: 10,
+        color: percent >= 85 ? "green" : percent >= 70 ? "orange" : "red",
+        fontWeight: "bold",
+      }}
+    >
+      {percent}%
+    </span>
+  );
+}
+function V({ fkey, fields, confidence, editing, onChange, style }: VProps) {
+  const v = fields[fkey] ?? "";
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center" }}>
+      {editing ? (
+        <input
+          type="text"
+          value={v}
+          onChange={(e) => onChange(fkey, e.target.value)}
+          style={inputStyle(style)}
+        />
+      ) : (
+        <span style={{ ...cellStyle, ...style }}>{v || "\u00a0"}</span>
+      )}
+
+      <Accuracy value={confidence?.[fkey]} />
+    </span>
+  );
 }
 const inp = (extra?: React.CSSProperties): React.CSSProperties => ({
   border: "none",
@@ -70,7 +96,7 @@ const singleRows: [string, string][] = [
   ["Place of Marriage", "pom"],
 ];
 
-export default function Form3A({ fields, editing, onChange }: Props) {
+export default function Form1A({ fields, confidence, editing, onChange }: Props) {
   return (
     <div
       style={{
@@ -103,7 +129,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
 
       <div style={{ textAlign: "right", margin: "10px 0 16px" }}>
         Date&nbsp;
-        <V fkey="date" fields={fields} editing={editing} onChange={onChange} />
+        <V fkey="date" fields={fields} confidence={confidence} editing={editing} onChange={onChange} />
       </div>
 
       <div style={{ fontWeight: "bold", marginBottom: 8 }}>
@@ -126,6 +152,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
         <V
           fkey="book_no"
           fields={fields}
+          confidence={confidence}
           editing={editing}
           onChange={onChange}
           style={{ minWidth: 70, width: "auto", margin: "0 4px" }}
@@ -182,6 +209,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
               <td style={{ padding: "4px 4px", verticalAlign: "bottom" }}>
                 <V
                   fkey={hKey}
+                  confidence={confidence}
                   fields={fields}
                   editing={editing}
                   onChange={onChange}
@@ -190,6 +218,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
               <td></td>
               <td style={{ padding: "4px 4px", verticalAlign: "bottom" }}>
                 <V
+                  confidence={confidence}
                   fkey={wKey}
                   fields={fields}
                   editing={editing}
@@ -232,6 +261,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
               </td>
               <td style={{ padding: "4px 0", verticalAlign: "bottom" }}>
                 <V
+                  confidence={confidence}
                   fkey={key}
                   fields={fields}
                   editing={editing}
@@ -246,6 +276,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
       <div style={{ marginBottom: 20, lineHeight: 2 }}>
         This certification is issued to&nbsp;
         <V
+          confidence={confidence}
           fkey="issued_to"
           fields={fields}
           editing={editing}
@@ -264,7 +295,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
             height: 18,
           }}
         >
-          <V
+          <V confidence={confidence}
             fkey="verified_by"
             fields={fields}
             editing={editing}
@@ -279,7 +310,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
             height: 18,
           }}
         >
-          <V
+          <V confidence={confidence}
             fkey="verified_pos"
             fields={fields}
             editing={editing}
@@ -307,7 +338,7 @@ export default function Form3A({ fields, editing, onChange }: Props) {
           >
             <span style={{ width: 110 }}>{label}</span>
             <span>:</span>
-            <V
+            <V confidence={confidence}
               fkey={key}
               fields={fields}
               editing={editing}
