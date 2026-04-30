@@ -5,7 +5,7 @@ import { useApp } from "@/context/AppContext";
 import Header from "@/components/Header";
 import Notification from "@/components/Notification";
 import UploadArea from "@/components/UploadArea";
-import { processDocument, assembleFields } from "@/lib/api";
+import { processDocument, assembleFields, assembleConfidence } from "@/lib/api";
 import { FormClass } from "@/lib/types";
 
 export default function CertificationsPage() {
@@ -38,12 +38,17 @@ export default function CertificationsPage() {
         return;
       }
 
-      const assembled = assembleFields(
-        data.form_class as FormClass,
-        data.fields,
+      const formClass = data.form_class as FormClass;
+
+      const assembled = assembleFields(formClass, data.fields);
+      const assembledConfidence = assembleConfidence(
+        formClass,
+        data.confidence || {}
       );
+
       sessionStorage.setItem("lcr_form_class", data.form_class);
       sessionStorage.setItem("lcr_fields", JSON.stringify(assembled));
+      sessionStorage.setItem("lcr_confidence", JSON.stringify(assembledConfidence));
       router.push("/services/certifications/template");
     } catch (err) {
       notify(

@@ -73,6 +73,55 @@ const cleanCause = (v?: string) =>
   (v || '')
     .replace(/\/+$/g, '')   // remove only ending slash
     .trim()
+
+export function assembleConfidence(
+  formClass: FormClass,
+  c: Record<string, number>
+): Record<string, number> {
+  const shared = {
+    city: c.city_municipality,
+    date: c.date_issuance,
+    registry: c.registry_no,
+    date_reg: c.date_submitted,
+  };
+
+  if (formClass === "1A") {
+    return {
+      ...shared,
+      child_name: Math.min(
+        c.child_first ?? 1,
+        c.child_middle ?? 1,
+        c.child_last ?? 1
+      ),
+      sex: c.sex,
+      dob: Math.min(c.dob_month ?? 1, c.dob_day ?? 1, c.dob_year ?? 1),
+      pob: Math.min(c.pob_city ?? 1, c.pob_province ?? 1),
+      mother_name: Math.min(
+        c.mother_first ?? 1,
+        c.mother_middle ?? 1,
+        c.mother_last ?? 1
+      ),
+      mother_nat: c.mother_citizenship,
+      father_name: Math.min(
+        c.father_first ?? 1,
+        c.father_middle ?? 1,
+        c.father_last ?? 1
+      ),
+      father_nat: c.father_citizenship,
+      marriage_date: Math.min(
+        c.parents_marriage_month ?? 1,
+        c.parents_marriage_day ?? 1,
+        c.parents_marriage_year ?? 1
+      ),
+      marriage_place: Math.min(
+        c.parents_marriage_city ?? 1,
+        c.parents_marriage_province ?? 1
+      ),
+    };
+  }
+
+  return c;
+}
 export function assembleFields(
   formClass: FormClass,
   f: Record<string, string>

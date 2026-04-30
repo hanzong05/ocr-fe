@@ -5,8 +5,7 @@ import { useApp } from '@/context/AppContext'
 import Header from '@/components/Header'
 import Notification from '@/components/Notification'
 import UploadArea from '@/components/UploadArea'
-import { processDocument, assembleFields } from '@/lib/api'
-
+import { processDocument, assembleFields, assembleConfidence } from '@/lib/api'
 export default function MarriageLicensePage() {
   const { isLoggedIn, notify } = useApp()
   const router = useRouter()
@@ -28,10 +27,12 @@ export default function MarriageLicensePage() {
         notify(`This appears to be a Form ${data.form_class} (Certification). Please upload it under Certifications instead.`, 'error')
         return
       }
+      const assembled = assembleFields("90", data.fields);
+      const assembledConfidence = assembleConfidence("90", data.confidence || {});
 
-      const assembled = assembleFields('90', data.fields)
-      sessionStorage.setItem('lcr_form_class', '90')
-      sessionStorage.setItem('lcr_fields', JSON.stringify(assembled))
+      sessionStorage.setItem("lcr_form_class", "90");
+      sessionStorage.setItem("lcr_fields", JSON.stringify(assembled));
+      sessionStorage.setItem("lcr_confidence", JSON.stringify(assembledConfidence));
       router.push('/services/marriage-license/template')
     } catch (err) {
       notify(
