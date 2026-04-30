@@ -41,10 +41,10 @@ function V({ fkey, fields, confidence, editing, onChange, style }: VProps) {
           type="text"
           value={v}
           onChange={(e) => onChange(fkey, e.target.value)}
-          style={inputStyle(style)}
+          style={inp(style)}
         />
       ) : (
-        <span style={{ ...cellStyle, ...style }}>{v || "\u00a0"}</span>
+        <span style={{ ...cell, ...style }}></span>
       )}
 
       <Accuracy value={confidence?.[fkey]} />

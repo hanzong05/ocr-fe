@@ -33,6 +33,7 @@ interface ValProps {
   editing: boolean;
   onChange: (k: string, v: string) => void;
   style?: React.CSSProperties;
+  bold?: boolean; // ✅ ADD THIS
 }
 function Val({ fkey, fields, editing, onChange, bold }: ValProps) {
   const v = fields[fkey] ?? "";
