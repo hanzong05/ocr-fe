@@ -55,7 +55,19 @@ function Accuracy({ value }: { value?: number }) {
     </span>
   );
 }
-
+const confidenceKeyMap: Record<string, string> = {
+  registry: "registry_no",
+  date_reg: "date_submitted",
+  child_name: "child_first",
+  dob: "dob_day",
+  pob: "pob_city",
+  mother_name: "mother_first",
+  mother_nat: "mother_citizenship",
+  father_name: "father_first",
+  father_nat: "father_citizenship",
+  marriage_date: "parents_marriage_month",
+  marriage_place: "parents_marriage_city",
+};
 function Val({ fkey, fields, confidence, editing, onChange, style }: ValProps) {
   const v = fields[fkey] ?? "";
 
@@ -72,7 +84,12 @@ function Val({ fkey, fields, confidence, editing, onChange, style }: ValProps) {
         <span style={{ ...cellStyle, ...style }}>{v || "\u00a0"}</span>
       )}
 
-      <Accuracy value={confidence?.[fkey]} />
+      <Accuracy
+        value={
+          confidence?.[fkey] ??
+          confidence?.[confidenceKeyMap[fkey]]
+        }
+      />
     </span>
   );
 }

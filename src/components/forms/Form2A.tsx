@@ -35,19 +35,61 @@ interface ValProps {
   style?: React.CSSProperties;
   bold?: boolean; // ✅ ADD THIS
 }
-function Val({ fkey, fields, editing, onChange, bold }: ValProps) {
+function Accuracy({ value }: { value?: number }) {
+  if (value == null) return null;
+
+  const percent = Math.round(value * 100);
+
+  return (
+    <span
+      style={{
+        marginLeft: 6,
+        fontSize: 10,
+        color: percent >= 85 ? "green" : percent >= 70 ? "orange" : "red",
+        fontWeight: "bold",
+      }}
+    >
+      {percent}%
+    </span>
+  );
+}
+const confidenceKeyMap: Record<string, string> = {
+  registry: "registry_no",
+  date_reg: "date_submitted",
+  child_name: "child_first",
+  dob: "dob_day",
+  pob: "pob_city",
+  mother_name: "mother_first",
+  mother_nat: "mother_citizenship",
+  father_name: "father_first",
+  father_nat: "father_citizenship",
+  marriage_date: "parents_marriage_month",
+  marriage_place: "parents_marriage_city",
+};
+function Val({ fkey, fields, confidence, editing, onChange, style }: ValProps) {
   const v = fields[fkey] ?? "";
-  const fw = bold ? "bold" : "normal";
-  if (editing)
-    return (
-      <input
-        type="text"
-        value={v}
-        onChange={(e) => onChange(fkey, e.target.value)}
-        style={inputStyle({ fontWeight: fw })}
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center" }}>
+      {editing ? (
+        <input
+          type="text"
+          value={v}
+          onChange={(e) => onChange(fkey, e.target.value)}
+          style={inputStyle(style)}
+        />
+      ) : (
+        <span style={{ ...cellStyle, ...style }}>{v || "\u00a0"}</span>
+      )}
+
+      <Accuracy
+        value={
+          confidence?.[fkey] ??
+          confidence?.[confidenceKeyMap[fkey]]
+        }
       />
-    );
-  return <span style={{ ...cellStyle, fontWeight: fw }}>{v || "\u00a0"}</span>;
+    </span>
+  );
 }
 
 const rows: [string, string, boolean?][] = [
