@@ -120,6 +120,31 @@ export function assembleConfidence(
     };
   }
 
+  if (formClass === "3A") {
+    return {
+      // registry → registry_no via confidenceKeyMap in Form3A
+      registry_no:        c.registry_no,
+      city:               c.city_municipality,
+      husband_name:       Math.min(c.husband_first ?? 1, c.husband_middle ?? 1, c.husband_last ?? 1),
+      husband_age:        c.husband_age,
+      husband_nat:        c.husband_citizenship,
+      husband_mother:     c.husband_mother_first,
+      husband_mother_nat: c.husband_mother_citizenship,
+      husband_father:     c.husband_father_first,
+      husband_father_nat: c.husband_father_citizenship,
+      wife_name:          Math.min(c.wife_first ?? 1, c.wife_middle ?? 1, c.wife_last ?? 1),
+      wife_age:           c.wife_age,
+      wife_nat:           c.wife_citizenship,
+      wife_mother:        c.wife_mother_first,
+      wife_mother_nat:    c.wife_mother_citizenship,
+      wife_father:        c.wife_father_first,
+      wife_father_nat:    c.wife_father_citizenship,
+      dom:                c.marriage_month,
+      // prefer venue confidence; fall back to city if venue was blank
+      pom:                c.marriage_venue || c.marriage_city,
+    };
+  }
+
   return c;
 }
 export function assembleFields(
