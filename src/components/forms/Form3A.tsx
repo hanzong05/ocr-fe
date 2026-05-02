@@ -57,7 +57,7 @@ function V({ fkey, fields, confidence, editing, onChange, style }: VProps) {
           style={inp(style)}
         />
       ) : (
-        <span style={{ ...cell, ...style }}></span>
+        <span style={{ ...cell, ...style }}>{v || " "}</span>
       )}
 
       <Accuracy
@@ -88,14 +88,6 @@ const cell: React.CSSProperties = {
   display: "inline-block",
   verticalAlign: "bottom",
 };
-
-/* ─── defined OUTSIDE Form3A ────────────────────────────────────── */
-interface VProps {
-  fkey: string;
-  fields: Record<string, string>;
-  editing: boolean;
-  onChange: (k: string, v: string) => void;
-}
 
 const partyRows: [string, string, string][] = [
   ["Name", "husband_name", "wife_name"],
