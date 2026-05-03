@@ -120,6 +120,23 @@ export function assembleConfidence(
     };
   }
 
+  if (formClass === "2A") {
+    return {
+      // registry → registry_no via confidenceKeyMap in Form2A
+      registry_no:    c.registry_no,
+      date_submitted: c.date_submitted,
+      city:           c.city_municipality,
+      deceased_name:  c.deceased_name,
+      sex:            c.sex,
+      age:            c.age,
+      civil_status:   c.civil_status,
+      nationality:    c.nationality,
+      dod:            c.dod,
+      pod:            c.pod,
+      cause:          c.cause,
+    };
+  }
+
   if (formClass === "3A") {
     return {
       // registry → registry_no via confidenceKeyMap in Form3A
