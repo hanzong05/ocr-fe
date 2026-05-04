@@ -131,6 +131,7 @@ export default function Form1A({ fields, confidence, editing, onChange }: Props)
           <V
             fkey="city"
             fields={fields}
+            confidence={confidence}
             editing={editing}
             onChange={onChange}
           />
